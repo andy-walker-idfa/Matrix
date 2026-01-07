@@ -404,7 +404,22 @@ generate_signing_key() {
             return
         fi
         print_warning "Backing up existing signing key..."
-        mv "$SIGNING_KEY_PATH" "${SIGNING_KEY_PATH}.backup.$(date +%Y%m%d_%H%M%S)"
+
+        # Use Docker to backup the file with proper permissions
+        BACKUP_NAME="matrix.signing.key.backup.$(date +%Y%m%d_%H%M%S)"
+        docker run --rm \
+            -v "$SCRIPT_DIR/synapse:/data" \
+            --entrypoint=/bin/sh \
+            matrixdotorg/synapse:latest \
+            -c "cp /data/matrix.signing.key /data/$BACKUP_NAME 2>/dev/null || mv /data/matrix.signing.key /data/$BACKUP_NAME"
+
+        if [ ! -f "$SIGNING_KEY_PATH" ]; then
+            print_success "Existing key backed up to synapse/$BACKUP_NAME"
+        else
+            # Fallback: try with sudo
+            sudo mv "$SIGNING_KEY_PATH" "synapse/$BACKUP_NAME" 2>/dev/null || \
+                print_warning "Could not backup old key, will overwrite"
+        fi
     fi
 
     print_info "Generating new Synapse signing key..."
