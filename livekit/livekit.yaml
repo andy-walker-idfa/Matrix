@@ -1,0 +1,32 @@
+port: 7880
+
+rtc:
+  tcp_port: 7881
+  port_range_start: 50000
+  port_range_end: 50200
+  use_external_ip: false
+  #node_ip: 57.128.245.3
+  ips:
+    includes:
+      - 57.128.245.3/32
+
+turn:
+  enabled: true
+  domain: messaging.idfa.cc
+  # Point directly to Let's Encrypt live directory
+  cert_file: "/etc/letsencrypt/live/mail3.idfa.cc/fullchain.pem"
+  key_file: "/etc/letsencrypt/live/mail3.idfa.cc/privkey.pem"
+  tls_port: 5349
+  udp_port: 3478
+  external_tls: true
+
+keys:
+  ${APIKey}: ${LIVEKIT_SECRET}
+
+logging:
+  level: info
+
+room:
+  auto_create: true
+  max_participants: 20
+  empty_timeout: 300

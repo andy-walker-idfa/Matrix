@@ -1,0 +1,127 @@
+networks:
+  matrix-network:
+    driver: bridge
+
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: synapse
+    restart: unless-stopped
+    entrypoint: ["/config/custom-entrypoint.sh"]
+    volumes:
+      #- ./synapse:/config
+      - /var/lib/synapse:/data
+      - ./synapse/docker-entrypoint.sh:/config/custom-entrypoint.sh:ro
+      - ./synapse/homeserver.yaml.template:/config/homeserver.yaml.template:ro
+      - ./synapse/log.config:/config/log.config:ro
+      - ./synapse/matrix.signing.key:/config/matrix.signing.key:ro
+    networks:
+      - matrix-network
+    environment:
+      #- SYNAPSE_CONFIG_PATH=/config/homeserver.yaml
+      - TZ=Europe/Prague
+      - REGISTRATION_SHARED_SECRET=${REGISTRATION_SHARED_SECRET}
+      - MACAROON_SECRET_KEY=${MACAROON_SECRET_KEY}
+      - FORM_SECRET=${FORM_SECRET}
+      - SYNAPSE_SERVER_NAME=${SYNAPSE_SERVER_NAME}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  element-web:
+    image: vectorim/element-web:latest
+    container_name: element-web
+    restart: unless-stopped
+    volumes:
+      - ./element-web/config.json:/app/config.json:ro
+    networks:
+      - matrix-network
+    environment:
+      - TZ=Europe/Prague
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  element-call:
+    image: ghcr.io/element-hq/element-call:latest
+    container_name: element-call
+    restart: unless-stopped
+    volumes:
+      - ./element-call/config.json:/app/config.json:ro
+    networks:
+      - matrix-network
+    environment:
+      - TZ=Europe/Prague
+
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: livekit
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml
+    volumes:
+      - ./livekit/livekit.yaml:/etc/livekit.yaml:ro
+      - /var/lib/matrix/livekit:/var/lib/livekit
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    ports:
+      - 7880:7880/tcp
+      - 7881:7881/tcp
+      - "50000-50200:50000-50200/udp"
+      - 5349:5349/tcp
+      - 3478:3478/udp
+    networks:
+      - matrix-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:7880/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - TZ=Europe/Prague
+      - NODE_IP=57.128.245.3
+      - LIVEKIT_SECRET=${LIVEKIT_SECRET}
+      - APIKey=${APIKey}
+
+  lk-jwt-service:
+    image: ghcr.io/element-hq/lk-jwt-service:latest
+    container_name: lk-jwt-service
+    restart: unless-stopped
+    environment:
+      - LIVEKIT_JWT_BIND=:8080
+      - LIVEKIT_URL=wss://${SYNAPSE_SERVER_NAME}/livekit/sfu/
+      - LIVEKIT_KEY=${APIKey}
+      - LIVEKIT_SECRET=${LIVEKIT_SECRET}
+      - LIVEKIT_FULL_ACCESS_HOMESERVERS=${SYNAPSE_SERVER_NAME}
+      - TZ=Europe/Prague
+    ports:
+      - "8070:8080"
+    networks:
+      - matrix-network
+
+  nginx:
+    image: nginx:latest
+    container_name: matrix-nginx
+    restart: unless-stopped
+    entrypoint: ["/custom-entrypoint.sh"]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8448:8448"
+    volumes:
+      - ./nginx/docker-entrypoint.sh:/custom-entrypoint.sh:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/matrix.conf.template:/etc/nginx/templates/matrix.conf.template:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - matrix-network
+    environment:
+      - TZ=Europe/Prague
+      - SYNAPSE_SERVER_NAME=${SYNAPSE_SERVER_NAME}
+      - SSL_CERT_DOMAIN=${SSL_CERT_DOMAIN}
+    depends_on:
+      - synapse
+      - element-web
+      - element-call

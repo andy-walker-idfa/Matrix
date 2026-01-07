@@ -1,0 +1,20 @@
+# Environment and secrets
+.env
+
+# Generated configuration files
+element-web/config.json
+element-call/config.json
+synapse/homeserver.yaml
+nginx/matrix.conf
+
+# Synapse secrets and keys
+synapse/matrix.signing.key
+synapse/*.signing.key
+
+# Data directories
+/var/lib/synapse/
+/var/lib/livekit/
+
+# Temporary files
+*.tmp
+*.log

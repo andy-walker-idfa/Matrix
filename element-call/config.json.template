@@ -1,0 +1,36 @@
+{
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://${SYNAPSE_SERVER_NAME}",
+      "server_name": "${SYNAPSE_SERVER_NAME}"
+    }
+  },
+  "livekit": {
+    "livekit_service_url": "https://${SYNAPSE_SERVER_NAME}/livekit/jwt",
+    "livekit_alias_prefix": "#call-"
+  },
+  "features": {
+    "feature_video_rooms": true,
+    "feature_element_call_video_rooms": true
+  },
+  "element_call": {
+    "url": "https://${SYNAPSE_SERVER_NAME}/element-call",
+    "use_exclusively": false,
+    "participant_limit": 20,
+    "brand": "Family Video Calls"
+  },
+  "analytics": {
+    "disabled": true
+  },
+  "brand": "Family Matrix",
+  "integrations_ui_url": "https://scalar.vector.im/",
+  "integrations_rest_url": "https://scalar.vector.im/api",
+  "integrations_widgets_urls": [
+    "https://scalar.vector.im/_matrix/integrations/v1",
+    "https://scalar.vector.im/api"
+  ],
+  "show_labs_settings": false,
+  "room_directory": {
+    "servers": ["${SYNAPSE_SERVER_NAME}"]
+  }
+}

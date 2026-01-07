@@ -1,0 +1,103 @@
+# Configuration file for Synapse.
+#
+# This is a YAML file: see [1] for a quick introduction. Note in particular
+# that *indentation is important*: all the elements of a list or dictionary
+# should have the same indentation.
+#
+# [1] https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html
+#
+# For more information on how to configure Synapse, including a complete accounting of
+# each option, go to docs/usage/configuration/config_documentation.md or
+# https://element-hq.github.io/synapse/latest/usage/configuration/config_documentation.html
+server_name: "${SYNAPSE_SERVER_NAME}"
+public_baseurl: "https://${SYNAPSE_SERVER_NAME}"
+pid_file: /data/homeserver.pid
+listeners:
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    bind_addresses: ['0.0.0.0']
+    resources:
+      - names: [client, federation]
+        compress: false
+# Database
+database:
+  name: sqlite3
+  args:
+    database: /data/homeserver.db
+# Logging
+log_config: "/config/log.config"
+# Media storage
+media_store_path: /data/media_store
+max_upload_size: 50M
+max_image_pixels: 32M
+# Registration
+enable_registration: true
+enable_registration_without_verification: true
+registration_shared_secret: ${REGISTRATION_SHARED_SECRET}
+# Federation
+federation_enabled: false
+# Encryption
+encryption_enabled_by_default: true
+
+# CRITICAL: MatrixRTC Support - Required MSCs
+experimental_features:
+# MSC3266: Room Summary API (for knocking over federation)
+msc3266_enabled: true
+# MSC4222: Sync v2 state_after (allows clients to track room state)
+msc4222_enabled: true
+# MSC4140: Delayed events (required for call participation signaling)
+msc4140_enabled: true
+# Maximum delay duration for events (24 hours recommended)
+max_event_delay_duration: 24h
+rc_message:
+  # This needs to match at least e2ee key sharing frequency plus a bit of headroom
+  # Note key sharing events are bursty
+  per_second: 0.5
+  burst_count: 30
+rc_delayed_event_mgmt:
+  # This needs to match at least the heart-beat frequency plus a bit of headroom
+  # Currently the heart-beat is every 5 seconds which translates into a rate of 0.2s
+  per_second: 1
+  burst_count: 20
+
+# Performance tuning for 2GB RAM VPS
+caches:
+  global_factor: 0.5
+
+# Presence (can disable to save resources)
+presence:
+  enabled: true
+
+report_stats: false
+macaroon_secret_key: ${MACAROON_SECRET_KEY}
+form_secret: ${FORM_SECRET}
+signing_key_path: "/config/matrix.signing.key"
+trusted_key_servers:
+  - server_name: "matrix.org"
+
+# OpenID Federation for lk-jwt-service
+openid:
+  enabled: true
+
+# URL previews
+url_preview_enabled: true
+url_preview_ip_range_blacklist:
+  - '127.0.0.0/8'
+  - '10.0.0.0/8'
+  - '172.16.0.0/12'
+  - '192.168.0.0/16'
+  - '100.64.0.0/10'
+  - '169.254.0.0/16'
+  - '::1/128'
+  - 'fe80::/64'
+  - 'fc00::/7'
+
+# Admin contact
+admin_contact: 'mailto:admin@idfa.cc'
+
+# Suppress key server warnings
+suppress_key_server_warning: true
+
+# vim:ft=yaml
