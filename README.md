@@ -135,7 +135,7 @@ docker-compose up -d
 │
 ├── mas/                          # Matrix Authentication Service
 │   ├── config.yaml.template      # MAS config template
-│   └── config.yaml               # Generated config (not in git)
+│   └── docker-entrypoint.sh      # MAS startup script (processes template)
 │
 ├── nginx/                        # Reverse proxy & SSL termination
 │   ├── nginx.conf                # Main nginx config

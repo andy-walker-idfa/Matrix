@@ -378,7 +378,6 @@ EOF
     declare -A TEMPLATES=(
         ["element-web/config.json"]="element-web/config.json.template"
         ["element-call/config.json"]="element-call/config.json.template"
-        ["mas/config.yaml"]="mas/config.yaml.template"
     )
 
     for output in "${!TEMPLATES[@]}"; do
@@ -608,7 +607,7 @@ print_summary() {
     echo "   - .env (environment variables and secrets)"
     echo "   - element-web/config.json"
     echo "   - element-call/config.json"
-    echo "   - mas/config.yaml"
+    echo "   - mas/config.yaml.template (processed at runtime)"
     echo "   - livekit/livekit.yaml"
     echo
 
