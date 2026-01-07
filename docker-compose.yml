@@ -17,7 +17,7 @@ services:
     networks:
       - matrix-network
     environment:
-      - TZ=Europe/Prague
+      - TZ=${TZ:-UTC}
       - REGISTRATION_SHARED_SECRET=${REGISTRATION_SHARED_SECRET}
       - MACAROON_SECRET_KEY=${MACAROON_SECRET_KEY}
       - FORM_SECRET=${FORM_SECRET}
@@ -37,7 +37,7 @@ services:
     networks:
       - matrix-network
     environment:
-      - TZ=Europe/Prague
+      - TZ=${TZ:-UTC}
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
       interval: 30s
@@ -53,7 +53,7 @@ services:
     networks:
       - matrix-network
     environment:
-      - TZ=Europe/Prague
+      - TZ=${TZ:-UTC}
 
   livekit:
     image: livekit/livekit-server:latest
@@ -78,8 +78,8 @@ services:
       timeout: 10s
       retries: 3
     environment:
-      - TZ=Europe/Prague
-      - NODE_IP=57.128.245.3
+      - TZ=${TZ:-UTC}
+      - NODE_IP=${NODE_IP}
       - LIVEKIT_SECRET=${LIVEKIT_SECRET}
       - APIKey=${APIKey}
 
@@ -93,7 +93,7 @@ services:
       - LIVEKIT_KEY=${APIKey}
       - LIVEKIT_SECRET=${LIVEKIT_SECRET}
       - LIVEKIT_FULL_ACCESS_HOMESERVERS=${SYNAPSE_SERVER_NAME}
-      - TZ=Europe/Prague
+      - TZ=${TZ:-UTC}
     ports:
       - "8070:8080"
     networks:
@@ -116,7 +116,7 @@ services:
     networks:
       - matrix-network
     environment:
-      - TZ=Europe/Prague
+      - TZ=${TZ:-UTC}
       - SYNAPSE_SERVER_NAME=${SYNAPSE_SERVER_NAME}
       - SSL_CERT_DOMAIN=${SSL_CERT_DOMAIN}
     depends_on:

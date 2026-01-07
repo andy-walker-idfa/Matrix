@@ -309,8 +309,10 @@ setup_env_file() {
 
     # Set timezone
     if ! check_env_var "TZ"; then
-        add_or_update_env "TZ" "UTC"
-        print_info "Timezone set to UTC (change TZ in .env if needed)"
+        read -p "Enter timezone (default: Europe/Prague, or UTC, America/New_York, etc.): " TIMEZONE
+        TIMEZONE=${TIMEZONE:-Europe/Prague}
+        add_or_update_env "TZ" "$TIMEZONE"
+        print_info "Timezone set to $TIMEZONE (change TZ in .env if needed)"
     fi
 
     print_success "Environment file configured"
