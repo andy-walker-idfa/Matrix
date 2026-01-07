@@ -428,10 +428,24 @@ generate_signing_key() {
         print_success "Signing key generated: $SIGNING_KEY_PATH"
     else
         # Look for any signing key file generated
-        FOUND_KEY=$(find "$SCRIPT_DIR/synapse" -name "*.signing.key" -type f | head -n 1)
+        FOUND_KEY=$(find "$SCRIPT_DIR/synapse" -name "*.signing.key" -type f 2>/dev/null | head -n 1)
         if [ -n "$FOUND_KEY" ]; then
-            mv "$FOUND_KEY" "$SIGNING_KEY_PATH"
-            print_success "Signing key generated and moved to: $SIGNING_KEY_PATH"
+            # Use Docker to rename the file with proper permissions
+            FOUND_KEY_BASENAME=$(basename "$FOUND_KEY")
+            docker run --rm \
+                -v "$SCRIPT_DIR/synapse:/data" \
+                --entrypoint=/bin/sh \
+                matrixdotorg/synapse:latest \
+                -c "mv /data/$FOUND_KEY_BASENAME /data/matrix.signing.key 2>/dev/null || cp /data/$FOUND_KEY_BASENAME /data/matrix.signing.key"
+
+            # Fix ownership back to host user
+            if [ -f "$SIGNING_KEY_PATH" ]; then
+                sudo chown $(id -u):$(id -g) "$SIGNING_KEY_PATH" 2>/dev/null || chmod 644 "$SIGNING_KEY_PATH" 2>/dev/null
+                print_success "Signing key generated and renamed to: $SIGNING_KEY_PATH"
+            else
+                print_warning "Signing key generated but couldn't rename automatically"
+                print_info "Please rename manually: $FOUND_KEY -> $SIGNING_KEY_PATH"
+            fi
         else
             print_error "Failed to generate signing key with Docker"
             print_info "Trying manual generation..."
@@ -441,15 +455,16 @@ generate_signing_key() {
                 -v "$SCRIPT_DIR/synapse:/data" \
                 --entrypoint=/bin/sh \
                 matrixdotorg/synapse:latest \
-                -c "python3 -c \"from signedjson.key import generate_signing_key; print(generate_signing_key('a'))\" > /data/matrix.signing.key"
+                -c "python3 -c \"from signedjson.key import generate_signing_key; print(generate_signing_key('a'))\" > /data/matrix.signing.key && chmod 644 /data/matrix.signing.key"
 
             if [ -f "$SIGNING_KEY_PATH" ]; then
+                sudo chown $(id -u):$(id -g) "$SIGNING_KEY_PATH" 2>/dev/null || true
                 print_success "Signing key generated: $SIGNING_KEY_PATH"
             else
                 print_error "Failed to generate signing key"
                 print_info "Please generate manually after setup using:"
                 echo "  docker run --rm -v \$PWD/synapse:/data -e SYNAPSE_SERVER_NAME=$SYNAPSE_SERVER_NAME matrixdotorg/synapse:latest generate"
-                echo "  Then move the generated .signing.key file to synapse/matrix.signing.key"
+                echo "  Then rename the generated .signing.key file to synapse/matrix.signing.key"
             fi
         fi
     fi
