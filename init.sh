@@ -414,16 +414,44 @@ generate_signing_key() {
         source .env
     fi
 
+    # Try using the generate command which is the proper way for recent Synapse versions
     docker run --rm \
-        -v "$SCRIPT_DIR/synapse:/config" \
+        -v "$SCRIPT_DIR/synapse:/data" \
+        -e SYNAPSE_SERVER_NAME="$SYNAPSE_SERVER_NAME" \
+        -e SYNAPSE_REPORT_STATS=no \
         matrixdotorg/synapse:latest \
-        generate_signing_key -o /config/matrix.signing.key
+        generate
 
+    # The generate command creates a homeserver.yaml with a signing key
+    # Extract the signing key path from generated config or look for *.signing.key
     if [ -f "$SIGNING_KEY_PATH" ]; then
         print_success "Signing key generated: $SIGNING_KEY_PATH"
     else
-        print_error "Failed to generate signing key"
-        exit 1
+        # Look for any signing key file generated
+        FOUND_KEY=$(find "$SCRIPT_DIR/synapse" -name "*.signing.key" -type f | head -n 1)
+        if [ -n "$FOUND_KEY" ]; then
+            mv "$FOUND_KEY" "$SIGNING_KEY_PATH"
+            print_success "Signing key generated and moved to: $SIGNING_KEY_PATH"
+        else
+            print_error "Failed to generate signing key with Docker"
+            print_info "Trying manual generation..."
+
+            # Fallback: Generate using Python one-liner inside container
+            docker run --rm \
+                -v "$SCRIPT_DIR/synapse:/data" \
+                --entrypoint=/bin/sh \
+                matrixdotorg/synapse:latest \
+                -c "python3 -c \"from signedjson.key import generate_signing_key; print(generate_signing_key('a'))\" > /data/matrix.signing.key"
+
+            if [ -f "$SIGNING_KEY_PATH" ]; then
+                print_success "Signing key generated: $SIGNING_KEY_PATH"
+            else
+                print_error "Failed to generate signing key"
+                print_info "Please generate manually after setup using:"
+                echo "  docker run --rm -v \$PWD/synapse:/data -e SYNAPSE_SERVER_NAME=$SYNAPSE_SERVER_NAME matrixdotorg/synapse:latest generate"
+                echo "  Then move the generated .signing.key file to synapse/matrix.signing.key"
+            fi
+        fi
     fi
 
     echo
