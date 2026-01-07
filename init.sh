@@ -593,7 +593,7 @@ print_summary() {
     echo
 
     echo "3. Start the services:"
-    echo "   ${GREEN}docker-compose up -d${NC}"
+    echo -e "   ${GREEN}docker-compose up -d${NC}"
     echo
 
     echo "4. Check service health:"
