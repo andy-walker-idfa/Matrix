@@ -102,12 +102,13 @@ services:
       - matrix-network
 
   mas:
-    image: ghcr.io/element-hq/matrix-authentication-service:latest
+    build:
+      context: ./mas
+      dockerfile: Dockerfile
+    image: matrix-auth-service:latest
     container_name: matrix-auth-service
     restart: unless-stopped
-    entrypoint: ["/custom-entrypoint.sh"]
     volumes:
-      - ./mas/docker-entrypoint.sh:/custom-entrypoint.sh:ro
       - ./mas/config.yaml.template:/config/config.yaml.template:ro
       - /var/lib/matrix/mas:/data
     networks:
