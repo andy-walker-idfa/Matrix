@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix Synapse signing key generation command\n\nFixed the error \"Unknown execution mode 'generate_signing_key'\" by using the correct command format for the Synapse Docker container.\n\nChanges:\n- Use ''generate'' command instead of ''generate_signing_key''\n- Add proper environment variables \\(SYNAPSE_SERVER_NAME, SYNAPSE_REPORT_STATS\\)\n- Add fallback method using Python inside container if primary method fails\n- Add automatic detection and renaming of generated signing key files\n- Provide helpful manual instructions if all automated methods fail\n\nThe script now tries multiple approaches to ensure signing key generation succeeds across different Synapse versions.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix permission denied error when renaming signing key\n\nFixed \"Permission denied\" error when moving the generated signing key file.\n\nChanges:\n- Use Docker container to rename the signing key file \\(preserves permissions\\)\n- Add ownership fix using chown or chmod as fallback\n- Suppress errors with 2>/dev/null for cleaner output\n- Add helpful warning if automatic rename fails\n- Update manual instructions to mention renaming\n\nThe generated signing key file \\(e.g., messaging.idfa.cc.signing.key\\) is now properly renamed to matrix.signing.key inside the Docker container context to avoid permission issues.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)"
+    ]
+  }
+}

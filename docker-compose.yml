@@ -9,7 +9,6 @@ services:
     restart: unless-stopped
     entrypoint: ["/config/custom-entrypoint.sh"]
     volumes:
-      #- ./synapse:/config
       - /var/lib/synapse:/data
       - ./synapse/docker-entrypoint.sh:/config/custom-entrypoint.sh:ro
       - ./synapse/homeserver.yaml.template:/config/homeserver.yaml.template:ro
@@ -18,7 +17,6 @@ services:
     networks:
       - matrix-network
     environment:
-      #- SYNAPSE_CONFIG_PATH=/config/homeserver.yaml
       - TZ=Europe/Prague
       - REGISTRATION_SHARED_SECRET=${REGISTRATION_SHARED_SECRET}
       - MACAROON_SECRET_KEY=${MACAROON_SECRET_KEY}
