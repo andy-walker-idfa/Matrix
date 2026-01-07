@@ -43,14 +43,23 @@ encryption_enabled_by_default: true
 
 # CRITICAL: MatrixRTC Support - Required MSCs
 experimental_features:
-# MSC3266: Room Summary API (for knocking over federation)
-msc3266_enabled: true
-# MSC4222: Sync v2 state_after (allows clients to track room state)
-msc4222_enabled: true
-# MSC4140: Delayed events (required for call participation signaling)
-msc4140_enabled: true
-# Maximum delay duration for events (24 hours recommended)
-max_event_delay_duration: 24h
+  # MSC3266: Room Summary API (for knocking over federation)
+  msc3266_enabled: true
+  # MSC4222: Sync v2 state_after (allows clients to track room state)
+  msc4222_enabled: true
+  # MSC4140: Delayed events (required for call participation signaling)
+  msc4140_enabled: true
+  # Maximum delay duration for events (24 hours recommended)
+  max_event_delay_duration: 24h
+  # Matrix Authentication Service (MAS) - For Element X support
+  msc3861:
+    enabled: true
+    issuer: "https://${SYNAPSE_SERVER_NAME}/"
+    client_id: "synapse"
+    client_auth_method: "client_secret_basic"
+    client_secret: "${MAS_SYNAPSE_SECRET}"
+    admin_token: "${MAS_ADMIN_TOKEN}"
+    account_management_url: "https://${SYNAPSE_SERVER_NAME}/account"
 rc_message:
   # This needs to match at least e2ee key sharing frequency plus a bit of headroom
   # Note key sharing events are bursty

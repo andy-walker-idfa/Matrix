@@ -22,6 +22,8 @@ services:
       - MACAROON_SECRET_KEY=${MACAROON_SECRET_KEY}
       - FORM_SECRET=${FORM_SECRET}
       - SYNAPSE_SERVER_NAME=${SYNAPSE_SERVER_NAME}
+      - MAS_SYNAPSE_SECRET=${MAS_SYNAPSE_SECRET}
+      - MAS_ADMIN_TOKEN=${MAS_ADMIN_TOKEN}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
       interval: 30s
@@ -99,6 +101,39 @@ services:
     networks:
       - matrix-network
 
+  mas:
+    image: ghcr.io/element-hq/matrix-authentication-service:latest
+    container_name: matrix-auth-service
+    restart: unless-stopped
+    volumes:
+      - ./mas/config.yaml:/config/config.yaml:ro
+      - /var/lib/matrix/mas:/data
+    networks:
+      - matrix-network
+    environment:
+      - TZ=${TZ:-UTC}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - synapse
+
+  synapse-admin:
+    image: awesometechnologies/synapse-admin:latest
+    container_name: synapse-admin
+    restart: unless-stopped
+    networks:
+      - matrix-network
+    environment:
+      - TZ=${TZ:-UTC}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   nginx:
     image: nginx:latest
     container_name: matrix-nginx
@@ -123,3 +158,5 @@ services:
       - synapse
       - element-web
       - element-call
+      - mas
+      - synapse-admin

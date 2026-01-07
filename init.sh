@@ -295,6 +295,10 @@ setup_env_file() {
         ["FORM_SECRET"]="Synapse form security secret"
         ["LIVEKIT_SECRET"]="LiveKit API secret"
         ["APIKey"]="LiveKit API key"
+        ["MAS_ENCRYPTION_SECRET"]="MAS database encryption secret"
+        ["MAS_SIGNING_KEY"]="MAS JWT signing key"
+        ["MAS_SYNAPSE_SECRET"]="MAS-Synapse shared secret"
+        ["MAS_ADMIN_TOKEN"]="MAS admin token for Synapse"
     )
 
     for secret_name in "${!SECRETS[@]}"; do
@@ -374,6 +378,7 @@ EOF
     declare -A TEMPLATES=(
         ["element-web/config.json"]="element-web/config.json.template"
         ["element-call/config.json"]="element-call/config.json.template"
+        ["mas/config.yaml"]="mas/config.yaml.template"
     )
 
     for output in "${!TEMPLATES[@]}"; do
@@ -543,6 +548,7 @@ prepare_volumes() {
     declare -A VOLUMES=(
         ["/var/lib/synapse"]="Synapse data (database, media, uploads)"
         ["/var/lib/matrix/livekit"]="LiveKit persistent data"
+        ["/var/lib/matrix/mas"]="MAS data (database, sessions)"
     )
 
     for vol_path in "${!VOLUMES[@]}"; do
@@ -602,6 +608,7 @@ print_summary() {
     echo "   - .env (environment variables and secrets)"
     echo "   - element-web/config.json"
     echo "   - element-call/config.json"
+    echo "   - mas/config.yaml"
     echo "   - livekit/livekit.yaml"
     echo
 
@@ -618,14 +625,21 @@ print_summary() {
     echo "   docker-compose logs -f"
     echo
 
-    echo "5. Create first admin user:"
-    echo "   docker exec -it synapse register_new_matrix_user \\"
-    echo "     http://localhost:8008 \\"
-    echo "     -c /data/homeserver.yaml \\"
-    echo "     --admin"
+    echo "5. Access admin console and create users:"
+    echo "   Admin Console: https://${SYNAPSE_SERVER_NAME}/admin"
+    echo "   Element Web:   https://${SYNAPSE_SERVER_NAME}"
+    echo
+    echo "   Users can register via MAS at:"
+    echo "   https://${SYNAPSE_SERVER_NAME}/register"
+    echo
+    echo "6. Connect Element X mobile clients:"
+    echo "   Server: ${SYNAPSE_SERVER_NAME}"
+    echo "   MAS handles authentication automatically"
+    echo "   A/V calls work via LiveKit integration"
     echo
 
-    print_info "Access your Matrix server at: https://${SYNAPSE_SERVER_NAME}"
+    print_info "All services accessible at: https://${SYNAPSE_SERVER_NAME}"
+    print_success "MAS-enabled setup complete - Element X mobile ready!"
     echo
 }
 
