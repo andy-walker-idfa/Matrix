@@ -29,7 +29,7 @@ secrets:
   encryption: "${MAS_ENCRYPTION_SECRET}"
   keys:
     - kid: "mas-key-1"
-      key: "${MAS_SIGNING_KEY}"
+      key: |
 
 # Matrix homeserver configuration
 matrix:

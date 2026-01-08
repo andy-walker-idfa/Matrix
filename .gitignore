@@ -13,6 +13,9 @@ mas/config.yaml
 synapse/matrix.signing.key
 synapse/*.signing.key
 
+# MAS secrets and keys
+mas/signing.key
+
 # Data directories
 /var/lib/synapse/
 /var/lib/livekit/

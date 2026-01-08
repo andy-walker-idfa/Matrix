@@ -374,11 +374,30 @@ EOF
 
     print_success "LiveKit configuration updated"
 
-    # Generate MAS config from template
+    # Generate MAS config from template with special handling for secrets
     print_info "Generating MAS configuration..."
     if [ -f "mas/config.yaml.template" ]; then
-        envsubst < mas/config.yaml.template > mas/config.yaml
-        print_success "Generated mas/config.yaml"
+        # MAS requires hex-encoded encryption secret (64 hex chars = 32 bytes)
+        MAS_ENCRYPTION_HEX=$(openssl rand -hex 32)
+
+        # Generate RSA key for MAS signing (if not already exists)
+        if [ ! -f "mas/signing.key" ]; then
+            openssl genrsa -out mas/signing.key 4096 2>/dev/null
+            chmod 600 mas/signing.key
+        fi
+
+        # Read the RSA key and indent it properly for YAML
+        MAS_RSA_KEY=$(cat mas/signing.key | sed 's/^/        /')
+
+        # Use envsubst for most variables, then manually insert the RSA key
+        MAS_ENCRYPTION_SECRET="$MAS_ENCRYPTION_HEX" envsubst < mas/config.yaml.template | \
+        sed "/kid: \"mas-key-1\"/,/key:/{
+            /key:/a\\
+$MAS_RSA_KEY
+            /key:/d
+        }" > mas/config.yaml
+
+        print_success "Generated mas/config.yaml with hex encryption secret and RSA signing key"
     else
         print_warning "Template not found: mas/config.yaml.template"
     fi
