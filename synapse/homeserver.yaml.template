@@ -33,8 +33,9 @@ media_store_path: /data/media_store
 max_upload_size: 50M
 max_image_pixels: 32M
 # Registration
-enable_registration: true
-enable_registration_without_verification: true
+# Note: Registration is disabled when using MSC3861 (MAS) OAuth delegation
+# Users register through MAS instead
+enable_registration: false
 registration_shared_secret: ${REGISTRATION_SHARED_SECRET}
 # Federation
 federation_enabled: false

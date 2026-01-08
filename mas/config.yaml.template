@@ -20,7 +20,7 @@ http:
         - name: compat
         - name: graphql
           playground: true
-        - name: admin
+        - name: adminapi
       binds:
         - address: "0.0.0.0:8080"
 
