@@ -1,21 +1,15 @@
 # Matrix Authentication Service Configuration
-# This file is generated/updated by init.sh
+# Minimal configuration for MSC3861 OAuth delegation mode
 # Documentation: https://element-hq.github.io/matrix-authentication-service/
 
-# Database configuration - PostgreSQL (required by MAS)
+# Database - PostgreSQL required
 database:
   uri: "postgresql://mas:${MAS_POSTGRES_PASSWORD}@postgres-mas/mas"
-  max_connections: 10
-  min_connections: 0
-  connect_timeout: 30
-  idle_timeout: 600
-  max_lifetime: 1800
 
 # HTTP configuration
 http:
   public_base: "https://${SYNAPSE_SERVER_NAME}/"
   issuer: "https://${SYNAPSE_SERVER_NAME}/"
-
   listeners:
     - name: web
       resources:
@@ -42,23 +36,20 @@ matrix:
   secret: "${MAS_SYNAPSE_SECRET}"
   endpoint: "http://synapse:8008"
 
-# Upstream OAuth providers (optional)
-upstream_oauth2:
-  providers: []
-
-# Password configuration
+# Password authentication
 passwords:
   enabled: true
   min_length: 8
-  require_uppercase: false
-  require_lowercase: true
-  require_number: true
+
+# Registration
+policy:
+  registration:
+    enabled: true
+    require_email: false
 
 # Branding
 branding:
   service_name: "${SYNAPSE_SERVER_NAME}"
-  policy_uri: "https://${SYNAPSE_SERVER_NAME}/privacy"
-  tos_uri: "https://${SYNAPSE_SERVER_NAME}/terms"
 
 # Account management
 account:
@@ -66,36 +57,6 @@ account:
   display_name_change_allowed: true
   password_change_allowed: true
 
-# Registration policy
-policy:
-  registration:
-    enabled: true
-    require_email: false
-
-# Clients configuration
-clients:
-  # Synapse homeserver client (for MSC3861 OAuth delegation)
-  - client_id: "0000000000000000000000synapse"
-    client_auth_method: client_secret_basic
-    client_secret: "${MAS_SYNAPSE_SECRET}"
-
-  # Element X mobile client (iOS, Android, Web)
-  - client_id: "01JGQQMXQZ9XQXQXQXQXQXQXQX"
-    client_auth_method: none
-    redirect_uris:
-      - "https://element.io/mobile/oidc/elementx"
-      - "https://element.io/mobile/oidc/nightly"
-      - "io.element:/callback"
-
-# Rate limiting
-rate_limiting:
-  enabled: true
-
-# Telemetry
-telemetry:
-  tracing:
-    propagators: []
-  metrics:
-    host: "0.0.0.0"
-    port: 9090
+# Note: No static clients configuration needed for MSC3861 mode
+# Synapse authenticates via the shared secret defined above
 
