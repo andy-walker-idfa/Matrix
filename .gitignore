@@ -6,6 +6,7 @@ element-web/config.json
 element-call/config.json
 synapse/homeserver.yaml
 nginx/matrix.conf
+livekit/livekit.yaml
 
 # Synapse secrets and keys
 synapse/matrix.signing.key

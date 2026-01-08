@@ -58,12 +58,14 @@ services:
       - TZ=${TZ:-UTC}
 
   livekit:
-    image: livekit/livekit-server:latest
+    build:
+      context: ./livekit
+      dockerfile: Dockerfile
+    image: livekit-with-envsubst:latest
     container_name: livekit
     restart: unless-stopped
-    command: --config /etc/livekit.yaml
     volumes:
-      - ./livekit/livekit.yaml:/etc/livekit.yaml:ro
+      - ./livekit/livekit.yaml.template:/etc/livekit.yaml.template:ro
       - /var/lib/matrix/livekit:/var/lib/livekit
       - /etc/letsencrypt:/etc/letsencrypt:ro
     ports:
@@ -82,6 +84,8 @@ services:
     environment:
       - TZ=${TZ:-UTC}
       - NODE_IP=${NODE_IP}
+      - SYNAPSE_SERVER_NAME=${SYNAPSE_SERVER_NAME}
+      - SSL_CERT_DOMAIN=${SSL_CERT_DOMAIN}
       - LIVEKIT_SECRET=${LIVEKIT_SECRET}
       - APIKey=${APIKey}
 
