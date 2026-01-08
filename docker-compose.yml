@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     entrypoint: ["/config/custom-entrypoint.sh"]
     volumes:
-      - /var/lib/synapse:/data
+      - ./synapse/data:/data
       - ./synapse/docker-entrypoint.sh:/config/custom-entrypoint.sh:ro
       - ./synapse/homeserver.yaml.template:/config/homeserver.yaml.template:ro
       - ./synapse/log.config:/config/log.config:ro
@@ -66,7 +66,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./livekit/livekit.yaml.template:/etc/livekit.yaml.template:ro
-      - /var/lib/matrix/livekit:/var/lib/livekit
+      - ./livekit/data:/var/lib/livekit
       - /etc/letsencrypt:/etc/letsencrypt:ro
     ports:
       - 7880:7880/tcp
@@ -111,7 +111,7 @@ services:
     command: server -c /config/config.yaml
     volumes:
       - ./mas/config.yaml:/config/config.yaml:ro
-      - /var/lib/matrix/mas:/data
+      - ./mas/data:/data
     networks:
       - matrix-network
     environment:

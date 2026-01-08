@@ -15,8 +15,13 @@ synapse/*.signing.key
 
 # MAS secrets and keys
 mas/signing.key
+mas/data/
 
-# Data directories
+# Data directories (local)
+synapse/data/
+livekit/data/
+
+# Data directories (legacy /var/lib paths - kept for reference)
 /var/lib/synapse/
 /var/lib/livekit/
 /var/lib/matrix/mas/
