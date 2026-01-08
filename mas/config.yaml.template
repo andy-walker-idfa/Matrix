@@ -61,6 +61,12 @@ account:
   display_name_change_allowed: true
   password_change_allowed: true
 
+# Registration policy
+policy:
+  registration:
+    enabled: true
+    require_email: false
+
 # Clients configuration
 clients:
   - client_id: "element-x"
