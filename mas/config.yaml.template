@@ -79,12 +79,13 @@ clients:
     client_auth_method: client_secret_basic
     client_secret: "${MAS_SYNAPSE_SECRET}"
 
-  # Element X mobile client
+  # Element X mobile client (iOS, Android, Web)
   - client_id: "01JGQQMXQZ9XQXQXQXQXQXQXQX"
     client_auth_method: none
     redirect_uris:
-      - "io.element.x:/callback"
-      - "https://element.io/callback"
+      - "https://element.io/mobile/oidc/elementx"
+      - "https://element.io/mobile/oidc/nightly"
+      - "io.element:/callback"
 
 # Rate limiting
 rate_limiting:
