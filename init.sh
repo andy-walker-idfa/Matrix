@@ -580,9 +580,9 @@ prepare_volumes() {
     print_header "Docker Volume Preparation"
 
     declare -A VOLUMES=(
-        ["/var/lib/synapse"]="Synapse data (database, media, uploads)"
-        ["/var/lib/matrix/livekit"]="LiveKit persistent data"
-        ["/var/lib/matrix/mas"]="MAS data (database, sessions)"
+        ["synapse/data"]="Synapse data (database, media, uploads)"
+        ["livekit/data"]="LiveKit persistent data"
+        ["mas/data"]="MAS data (database, sessions)"
     )
 
     for vol_path in "${!VOLUMES[@]}"; do
@@ -590,13 +590,8 @@ prepare_volumes() {
             print_success "$vol_path exists - ${VOLUMES[$vol_path]}"
         else
             print_info "Creating directory: $vol_path"
-            sudo mkdir -p "$vol_path"
-
-            # Set appropriate permissions
-            if [[ "$vol_path" == "/var/lib/synapse" ]]; then
-                sudo chown -R 991:991 "$vol_path" 2>/dev/null || print_warning "Could not set ownership (may need to run as root)"
-            fi
-
+            mkdir -p "$vol_path"
+            chmod 755 "$vol_path"
             print_success "Created $vol_path"
         fi
     done
