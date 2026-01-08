@@ -64,15 +64,40 @@ docker-compose ps postgres-mas
 ```
 
 ### Step 3: Run Database Migration
+
+First, find your Docker network name:
+```bash
+docker network ls | grep matrix
+```
+
+The network name will be `<directory>_matrix-network`. For example:
+- If in `/opt/matrix` directory: `matrix_matrix-network`
+- If in `/opt/matrix_new` directory: `matrix_new_matrix-network`
+
+Then run the migration with your network name:
+```bash
+# Replace NETWORK_NAME with your actual network from above
+docker run --rm \
+  --network NETWORK_NAME \
+  -v $(pwd)/mas/config.yaml:/config.yaml:ro \
+  ghcr.io/element-hq/matrix-authentication-service:latest \
+  database migrate -c /config.yaml
+```
+
+Example for `/opt/matrix_new`:
 ```bash
 docker run --rm \
-  --network matrix_matrix-network \
+  --network matrix_new_matrix-network \
   -v $(pwd)/mas/config.yaml:/config.yaml:ro \
   ghcr.io/element-hq/matrix-authentication-service:latest \
   database migrate -c /config.yaml
 ```
 
 Expected output:
+```
+INFO sqlx::postgres::notice: relation "_sqlx_migrations" already exists, skipping
+```
+Or on first run:
 ```
 Running migrations...
 Applied migration: xxx
