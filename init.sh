@@ -675,16 +675,28 @@ print_summary() {
     echo "   ${SYNAPSE_SERVER_NAME} -> ${NODE_IP}"
     echo
 
-    echo "3. Start the services:"
+    echo "3. Start PostgreSQL for MAS (required for database migration):"
+    echo -e "   ${GREEN}docker-compose up -d postgres-mas${NC}"
+    echo "   Wait for it to be healthy (15-30 seconds)"
+    echo
+
+    echo "4. Run MAS database migration:"
+    echo "   docker run --rm --network matrix_matrix-network \\"
+    echo "     -v \$(pwd)/mas/config.yaml:/config.yaml:ro \\"
+    echo "     ghcr.io/element-hq/matrix-authentication-service:latest \\"
+    echo "     database migrate -c /config.yaml"
+    echo
+
+    echo "5. Start all remaining services:"
     echo -e "   ${GREEN}docker-compose up -d${NC}"
     echo
 
-    echo "4. Check service health:"
+    echo "6. Check service health:"
     echo "   docker-compose ps"
-    echo "   docker-compose logs -f"
+    echo "   docker-compose logs -f matrix-auth-service"
     echo
 
-    echo "5. Access admin console and create users:"
+    echo "7. Access admin console and create users:"
     echo "   Admin Console: https://${SYNAPSE_SERVER_NAME}/admin"
     echo "   Element Web:   https://${SYNAPSE_SERVER_NAME}"
     echo

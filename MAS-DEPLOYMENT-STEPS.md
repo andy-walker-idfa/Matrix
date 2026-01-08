@@ -6,7 +6,7 @@
 2. **Added automatic database migration** - Creates schema tables
 3. **Fixed secrets section** - Proper format that MAS expects
 
-## Deployment on Target Server
+## For EXISTING Deployment (Updating)
 
 ### Step 1: Pull Latest Changes
 ```bash
@@ -40,6 +40,57 @@ The script will:
 ```bash
 docker-compose up -d mas
 ```
+
+## For FRESH Installation (New Server)
+
+### Step 1: Clone and Initialize
+```bash
+git clone https://github.com/your-repo/Matrix.git
+cd Matrix
+./init.sh
+```
+
+The init.sh will generate configs but SKIP database migration (postgres not running yet).
+
+### Step 2: Start PostgreSQL First
+```bash
+docker-compose up -d postgres-mas
+```
+
+Wait 15-30 seconds for PostgreSQL to initialize and become healthy:
+```bash
+docker-compose ps postgres-mas
+# Should show "healthy"
+```
+
+### Step 3: Run Database Migration
+```bash
+docker run --rm \
+  --network matrix_matrix-network \
+  -v $(pwd)/mas/config.yaml:/config.yaml:ro \
+  ghcr.io/element-hq/matrix-authentication-service:latest \
+  database migrate -c /config.yaml
+```
+
+Expected output:
+```
+Running migrations...
+Applied migration: xxx
+Applied migration: yyy
+Migration complete.
+```
+
+### Step 4: Start All Services
+```bash
+docker-compose up -d
+```
+
+### Step 5: Verify MAS Started Successfully
+```bash
+docker logs matrix-auth-service -f
+```
+
+Should see no "missing field" errors.
 
 ### Step 6: Check MAS Logs
 ```bash
