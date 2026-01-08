@@ -16,6 +16,7 @@ synapse/*.signing.key
 # MAS secrets and keys
 mas/signing.key
 mas/data/
+mas/postgres-data/
 
 # Data directories (local)
 synapse/data/

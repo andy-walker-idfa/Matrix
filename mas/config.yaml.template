@@ -2,9 +2,14 @@
 # This file is generated/updated by init.sh
 # Documentation: https://element-hq.github.io/matrix-authentication-service/
 
-# Database configuration - SQLite for simplicity
+# Database configuration - PostgreSQL (required by MAS)
 database:
-  uri: "sqlite:///data/mas.db"
+  uri: "postgresql://mas:${MAS_POSTGRES_PASSWORD}@postgres-mas/mas"
+  max_connections: 10
+  min_connections: 0
+  connect_timeout: 30
+  idle_timeout: 600
+  max_lifetime: 1800
 
 # HTTP configuration
 http:

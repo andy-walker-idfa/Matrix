@@ -295,6 +295,7 @@ setup_env_file() {
         ["FORM_SECRET"]="Synapse form security secret"
         ["LIVEKIT_SECRET"]="LiveKit API secret"
         ["APIKey"]="LiveKit API key"
+        ["MAS_POSTGRES_PASSWORD"]="PostgreSQL password for MAS database"
         ["MAS_ENCRYPTION_SECRET"]="MAS database encryption secret"
         ["MAS_SIGNING_KEY"]="MAS JWT signing key"
         ["MAS_SYNAPSE_SECRET"]="MAS-Synapse shared secret"
@@ -582,7 +583,8 @@ prepare_volumes() {
     declare -A VOLUMES=(
         ["synapse/data"]="Synapse data (database, media, uploads)"
         ["livekit/data"]="LiveKit persistent data"
-        ["mas/data"]="MAS data (database, sessions)"
+        ["mas/data"]="MAS application data"
+        ["mas/postgres-data"]="PostgreSQL database for MAS"
     )
 
     for vol_path in "${!VOLUMES[@]}"; do
