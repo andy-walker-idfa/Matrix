@@ -147,12 +147,12 @@ server {
         proxy_send_timeout 3600s;
     }
 
-    # Well-known for client discovery - WITH RTC CONFIGURATION
+    # Well-known for client discovery - WITH RTC AND MSC3861 OIDC
     location /.well-known/matrix/client {
         add_header 'Access-Control-Allow-Origin' '*' always;
         add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
         default_type application/json;
-        return 200 '{"m.homeserver":{"base_url":"https://$server_name"},"org.matrix.msc4143.rtc_foci":[{"type":"livekit","livekit_service_url":"https://$server_name/livekit/jwt"}]}';
+        return 200 '{"m.homeserver":{"base_url":"https://$server_name"},"m.authentication":{"issuer":"https://$server_name/","account":"https://$server_name/account"},"org.matrix.msc4143.rtc_foci":[{"type":"livekit","livekit_service_url":"https://$server_name/livekit/jwt"}]}';
     }
 
     # Well-known for server discovery
