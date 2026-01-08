@@ -100,8 +100,7 @@ services:
       - LIVEKIT_SECRET=${LIVEKIT_SECRET}
       - LIVEKIT_FULL_ACCESS_HOMESERVERS=${SYNAPSE_SERVER_NAME}
       - TZ=${TZ:-UTC}
-    ports:
-      - "8070:8080"
+    # No ports exposed - accessed internally via Docker network only
     networks:
       - matrix-network
 
