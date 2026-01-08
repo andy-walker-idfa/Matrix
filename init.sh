@@ -374,6 +374,15 @@ EOF
 
     print_success "LiveKit configuration updated"
 
+    # Generate MAS config from template
+    print_info "Generating MAS configuration..."
+    if [ -f "mas/config.yaml.template" ]; then
+        envsubst < mas/config.yaml.template > mas/config.yaml
+        print_success "Generated mas/config.yaml"
+    else
+        print_warning "Template not found: mas/config.yaml.template"
+    fi
+
     # Generate configs from templates
     declare -A TEMPLATES=(
         ["element-web/config.json"]="element-web/config.json.template"

@@ -106,23 +106,17 @@ services:
       - matrix-network
 
   mas:
-    build:
-      context: ./mas
-      dockerfile: Dockerfile
-    image: matrix-auth-service:latest
+    image: ghcr.io/element-hq/matrix-authentication-service:latest
     container_name: matrix-auth-service
     restart: unless-stopped
+    command: server -c /config/config.yaml
     volumes:
-      - ./mas/config.yaml.template:/config/config.yaml.template:ro
+      - ./mas/config.yaml:/config/config.yaml:ro
       - /var/lib/matrix/mas:/data
     networks:
       - matrix-network
     environment:
       - TZ=${TZ:-UTC}
-      - SYNAPSE_SERVER_NAME=${SYNAPSE_SERVER_NAME}
-      - MAS_ENCRYPTION_SECRET=${MAS_ENCRYPTION_SECRET}
-      - MAS_SIGNING_KEY=${MAS_SIGNING_KEY}
-      - MAS_SYNAPSE_SECRET=${MAS_SYNAPSE_SECRET}
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
       interval: 30s
