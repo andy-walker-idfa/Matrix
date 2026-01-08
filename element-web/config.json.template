@@ -3,13 +3,7 @@
     "m.homeserver": {
       "base_url": "https://${SYNAPSE_SERVER_NAME}",
       "server_name": "${SYNAPSE_SERVER_NAME}"
-    },
-    "m.identity_server": {
-      "base_url": "https://vector.im"
     }
-  },
-  "delegated_oidc_compatibility": {
-    "action": "prefer_oidc"
   },
   "brand": "Family Chat",
   "integrations_ui_url": "https://scalar.vector.im/",
