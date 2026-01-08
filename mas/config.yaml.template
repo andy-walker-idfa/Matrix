@@ -74,7 +74,7 @@ policy:
 
 # Clients configuration
 clients:
-  - client_id: "element-x"
+  - client_id: "01JGQQMXQZ9XQXQXQXQXQXQXQX"
     client_auth_method: none
     redirect_uris:
       - "io.element.x:/callback"
