@@ -406,6 +406,34 @@ EOF
         rm -f mas/config.yaml.tmp
 
         print_success "Generated mas/config.yaml with hex encryption secret and RSA signing key"
+
+        # Run MAS database migration
+        print_info "Running MAS database migration..."
+        print_info "This requires postgres-mas container to be running"
+
+        if docker ps | grep -q postgres-mas; then
+            docker run --rm \
+                --network matrix_matrix-network \
+                -v "$(pwd)/mas/config.yaml:/config.yaml:ro" \
+                ghcr.io/element-hq/matrix-authentication-service:latest \
+                database migrate -c /config.yaml 2>&1 | while read line; do
+                    echo "  $line"
+                done
+
+            if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                print_success "MAS database schema created successfully"
+            else
+                print_warning "MAS database migration may have failed - check logs above"
+                print_info "If postgres-mas is not running, start it first: docker-compose up -d postgres-mas"
+            fi
+        else
+            print_warning "postgres-mas container not running - skipping database migration"
+            print_info "Run this command after starting postgres-mas:"
+            echo "  docker run --rm --network matrix_matrix-network \\"
+            echo "    -v \$(pwd)/mas/config.yaml:/config.yaml:ro \\"
+            echo "    ghcr.io/element-hq/matrix-authentication-service:latest \\"
+            echo "    database migrate -c /config.yaml"
+        fi
     else
         print_warning "Template not found: mas/config.yaml.template"
     fi
