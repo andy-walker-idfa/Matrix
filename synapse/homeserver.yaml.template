@@ -56,7 +56,7 @@ experimental_features:
   msc3861:
     enabled: true
     issuer: "https://${SYNAPSE_SERVER_NAME}/"
-    client_id: "synapse"
+    client_id: "0000000000000000000000synapse"
     client_auth_method: "client_secret_basic"
     client_secret: "${MAS_SYNAPSE_SECRET}"
     admin_token: "${MAS_ADMIN_TOKEN}"
