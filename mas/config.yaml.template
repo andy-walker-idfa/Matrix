@@ -74,6 +74,12 @@ policy:
 
 # Clients configuration
 clients:
+  # Synapse homeserver client (for MSC3861 OAuth delegation)
+  - client_id: "synapse"
+    client_auth_method: client_secret_basic
+    client_secret: "${MAS_SYNAPSE_SECRET}"
+
+  # Element X mobile client
   - client_id: "01JGQQMXQZ9XQXQXQXQXQXQXQX"
     client_auth_method: none
     redirect_uris:
