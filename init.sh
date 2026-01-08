@@ -386,16 +386,23 @@ EOF
             chmod 600 mas/signing.key
         fi
 
-        # Read the RSA key and indent it properly for YAML
-        MAS_RSA_KEY=$(cat mas/signing.key | sed 's/^/        /')
+        # Generate config with substituted encryption secret
+        MAS_ENCRYPTION_SECRET="$MAS_ENCRYPTION_HEX" envsubst < mas/config.yaml.template > mas/config.yaml.tmp
 
-        # Use envsubst for most variables, then manually insert the RSA key
-        MAS_ENCRYPTION_SECRET="$MAS_ENCRYPTION_HEX" envsubst < mas/config.yaml.template | \
-        sed "/kid: \"mas-key-1\"/,/key:/{
-            /key:/a\\
-$MAS_RSA_KEY
-            /key:/d
-        }" > mas/config.yaml
+        # Insert RSA key after "key: |" line with proper indentation (8 spaces)
+        awk '
+            /key: \|/ {
+                print
+                while ((getline line < "mas/signing.key") > 0) {
+                    print "        " line
+                }
+                close("mas/signing.key")
+                next
+            }
+            { print }
+        ' mas/config.yaml.tmp > mas/config.yaml
+
+        rm -f mas/config.yaml.tmp
 
         print_success "Generated mas/config.yaml with hex encryption secret and RSA signing key"
     else
