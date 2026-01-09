@@ -167,13 +167,13 @@ docker exec matrix-auth-service cat /config.yaml | grep -A 5 "^matrix:"
 
 **Step 4: Verify Synapse → MAS Delegation**
 ```bash
-# Check Synapse config has msc3861 section
-docker exec synapse cat /config/homeserver.yaml | grep -A 10 "msc3861:"
+# Check Synapse config has matrix_authentication_service section
+docker exec synapse cat /config/homeserver.yaml | grep -A 5 "matrix_authentication_service:"
 # Should show:
-#   msc3861:
+#   matrix_authentication_service:
 #     enabled: true
-#     issuer: https://messaging.idfa.cc/
-#     client_id: 0000000000000000000000synapse
+#     endpoint: http://mas:8080/
+#     secret: [admin_token_value]
 ```
 
 ### Verify OIDC Discovery

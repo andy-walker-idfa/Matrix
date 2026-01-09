@@ -42,6 +42,13 @@ federation_enabled: false
 # Encryption
 encryption_enabled_by_default: true
 
+# Matrix Authentication Service (MAS) - Synapse 1.136.0+ stable format
+# Delegates authentication to MAS for Element X support
+matrix_authentication_service:
+  enabled: true
+  endpoint: "http://mas:8080/"
+  secret: "${MAS_ADMIN_TOKEN}"
+
 # CRITICAL: MatrixRTC Support - Required MSCs
 experimental_features:
   # MSC3266: Room Summary API (for knocking over federation)
@@ -52,15 +59,6 @@ experimental_features:
   msc4140_enabled: true
   # Maximum delay duration for events (24 hours recommended)
   max_event_delay_duration: 24h
-  # Matrix Authentication Service (MAS) - For Element X support
-  msc3861:
-    enabled: true
-    issuer: "https://${SYNAPSE_SERVER_NAME}/"
-    client_id: "0000000000000000000000synapse"
-    client_auth_method: "client_secret_basic"
-    client_secret: "${MAS_SYNAPSE_SECRET}"
-    admin_token: "${MAS_ADMIN_TOKEN}"
-    account_management_url: "https://${SYNAPSE_SERVER_NAME}/account"
 rc_message:
   # This needs to match at least e2ee key sharing frequency plus a bit of headroom
   # Note key sharing events are bursty
