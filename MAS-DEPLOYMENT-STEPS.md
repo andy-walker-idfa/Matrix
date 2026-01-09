@@ -9,6 +9,7 @@
 5. **Added /assets/ location to nginx** - Fixes registration page CSS/JS loading
 6. **Added MAS_POSTGRES_PASSWORD** - Required environment variable
 7. **Added assets resource to MAS HTTP listener** - Required for serving static CSS/JS files
+8. **Added MAS compatibility layer** - Routes Matrix Client-Server API auth endpoints to MAS for legacy clients
 
 ## MSC3861 4-Step Setup (Now Automated)
 
