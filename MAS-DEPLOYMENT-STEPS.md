@@ -3,22 +3,23 @@
 ## What Changed
 
 1. **Fixed MAS config structure** - Based on `mas-cli config generate` output
-2. **Added automatic database migration** - Creates schema tables
+2. **Database migrations run automatically** - MAS handles migrations on startup
 3. **Fixed secrets section** - Proper format that MAS expects
 4. **Added MSC3861 configuration to Synapse** - Delegates authentication to MAS
 5. **Added /assets/ location to nginx** - Fixes registration page CSS/JS loading
 6. **Added MAS_POSTGRES_PASSWORD** - Required environment variable
+7. **Added assets resource to MAS HTTP listener** - Required for serving static CSS/JS files
 
 ## MSC3861 4-Step Setup (Now Automated)
 
 The deployment now includes all 4 steps required for MSC3861 OAuth delegation:
 
-1. ✅ **PostgreSQL + Database Migration** - Automatically handled by init.sh
-2. ✅ **Client Registration** - Synapse client auto-registered in MAS database
+1. ✅ **PostgreSQL + Database Migration** - MAS runs migrations automatically on startup
+2. ✅ **Client Registration** - Synapse client auto-registered in MAS database on first run
 3. ✅ **MAS → Synapse Configuration** - Configured in mas/config.yaml.template
 4. ✅ **Synapse → MAS Delegation** - Configured in synapse/homeserver.yaml.template
 
-All configuration is now included in the templates and generated automatically.
+All configuration is now included in the templates and migrations happen automatically.
 
 ## For EXISTING Deployment (Updating)
 
@@ -40,20 +41,19 @@ docker-compose up -d postgres-mas
 docker ps | grep postgres-mas
 ```
 
-### Step 4: Run init.sh (Regenerate Configs + Migrate DB)
+### Step 4: Run init.sh (Regenerate Configs)
 ```bash
 ./init.sh
 ```
 
-The script will:
-- Generate new MAS config with proper structure
-- Automatically run database migration if postgres-mas is running
-- Show success/failure messages
+The script will generate new MAS config with proper structure.
 
 ### Step 5: Start MAS
 ```bash
 docker-compose up -d mas
 ```
+
+MAS will automatically run database migrations on startup.
 
 ## For FRESH Installation (New Server)
 
@@ -64,81 +64,26 @@ cd Matrix
 ./init.sh
 ```
 
-The init.sh will generate configs but SKIP database migration (postgres not running yet).
+The init.sh will generate all configuration files.
 
-### Step 2: Start PostgreSQL First
-```bash
-docker-compose up -d postgres-mas
-```
-
-Wait 15-30 seconds for PostgreSQL to initialize and become healthy:
-```bash
-docker-compose ps postgres-mas
-# Should show "healthy"
-```
-
-### Step 3: Run Database Migration
-
-First, find your Docker network name:
-```bash
-docker network ls | grep matrix
-```
-
-The network name will be `<directory>_matrix-network`. For example:
-- If in `/opt/matrix` directory: `matrix_matrix-network`
-- If in `/opt/matrix_new` directory: `matrix_new_matrix-network`
-
-Then run the migration with your network name:
-```bash
-# Replace NETWORK_NAME with your actual network from above
-docker run --rm \
-  --network NETWORK_NAME \
-  -v $(pwd)/mas/config.yaml:/config.yaml:ro \
-  ghcr.io/element-hq/matrix-authentication-service:latest \
-  database migrate -c /config.yaml
-```
-
-Example for `/opt/matrix_new`:
-```bash
-docker run --rm \
-  --network matrix_new_matrix-network \
-  -v $(pwd)/mas/config.yaml:/config.yaml:ro \
-  ghcr.io/element-hq/matrix-authentication-service:latest \
-  database migrate -c /config.yaml
-```
-
-Expected output:
-```
-INFO sqlx::postgres::notice: relation "_sqlx_migrations" already exists, skipping
-```
-Or on first run:
-```
-Running migrations...
-Applied migration: xxx
-Applied migration: yyy
-Migration complete.
-```
-
-### Step 4: Start All Services
+### Step 2: Start All Services
 ```bash
 docker-compose up -d
 ```
 
-### Step 5: Verify MAS Started Successfully
+MAS will automatically run database migrations on first startup.
+
+### Step 3: Verify MAS Started Successfully
 ```bash
 docker logs matrix-auth-service -f
 ```
 
-Should see no "missing field" errors.
+You should see:
+- Database migrations running automatically
+- No "missing field" errors
+- Successful startup messages
 
-### Step 6: Check MAS Logs
-```bash
-docker logs matrix-auth-service -f
-```
-
-**Expected**: No more "missing field `secrets`" errors. Should see successful startup.
-
-### Step 7: Test Registration
+### Step 4: Test Registration
 Navigate to: `https://messaging.idfa.cc/account/`
 
 Should now see a working registration page.

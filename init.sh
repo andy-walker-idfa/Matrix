@@ -406,34 +406,7 @@ EOF
         rm -f mas/config.yaml.tmp
 
         print_success "Generated mas/config.yaml with hex encryption secret and RSA signing key"
-
-        # Run MAS database migration
-        print_info "Running MAS database migration..."
-        print_info "This requires postgres-mas container to be running"
-
-        if docker ps | grep -q postgres-mas; then
-            docker run --rm \
-                --network matrix_matrix-network \
-                -v "$(pwd)/mas/config.yaml:/config.yaml:ro" \
-                ghcr.io/element-hq/matrix-authentication-service:latest \
-                database migrate -c /config.yaml 2>&1 | while read line; do
-                    echo "  $line"
-                done
-
-            if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                print_success "MAS database schema created successfully"
-            else
-                print_warning "MAS database migration may have failed - check logs above"
-                print_info "If postgres-mas is not running, start it first: docker-compose up -d postgres-mas"
-            fi
-        else
-            print_warning "postgres-mas container not running - skipping database migration"
-            print_info "Run this command after starting postgres-mas:"
-            echo "  docker run --rm --network matrix_matrix-network \\"
-            echo "    -v \$(pwd)/mas/config.yaml:/config.yaml:ro \\"
-            echo "    ghcr.io/element-hq/matrix-authentication-service:latest \\"
-            echo "    database migrate -c /config.yaml"
-        fi
+        print_info "MAS will run database migrations automatically on first startup"
     else
         print_warning "Template not found: mas/config.yaml.template"
     fi
@@ -675,28 +648,17 @@ print_summary() {
     echo "   ${SYNAPSE_SERVER_NAME} -> ${NODE_IP}"
     echo
 
-    echo "3. Start PostgreSQL for MAS (required for database migration):"
-    echo -e "   ${GREEN}docker-compose up -d postgres-mas${NC}"
-    echo "   Wait for it to be healthy (15-30 seconds)"
-    echo
-
-    echo "4. Run MAS database migration:"
-    echo "   docker run --rm --network matrix_matrix-network \\"
-    echo "     -v \$(pwd)/mas/config.yaml:/config.yaml:ro \\"
-    echo "     ghcr.io/element-hq/matrix-authentication-service:latest \\"
-    echo "     database migrate -c /config.yaml"
-    echo
-
-    echo "5. Start all remaining services:"
+    echo "3. Start all services:"
     echo -e "   ${GREEN}docker-compose up -d${NC}"
+    echo "   (MAS will automatically run database migrations on first start)"
     echo
 
-    echo "6. Check service health:"
+    echo "4. Check service health:"
     echo "   docker-compose ps"
     echo "   docker-compose logs -f matrix-auth-service"
     echo
 
-    echo "7. Access admin console and create users:"
+    echo "5. Access admin console and create users:"
     echo "   Admin Console: https://${SYNAPSE_SERVER_NAME}/admin"
     echo "   Element Web:   https://${SYNAPSE_SERVER_NAME}"
     echo

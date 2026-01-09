@@ -13,6 +13,8 @@ http:
     - name: graphql
       playground: true
     - name: adminapi
+    - name: assets
+      path: /usr/local/share/mas-cli/
     binds:
     - address: "0.0.0.0:8080"
       proxy_protocol: false
